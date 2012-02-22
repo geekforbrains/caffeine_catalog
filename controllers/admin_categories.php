@@ -73,7 +73,7 @@ class Catalog_Admin_CategoriesController extends Controller {
                 'category_id' => array(
                     'title' => 'Parent Category',
                     'type' => 'select',
-                    'options' => self::_getSortedCategories(),
+                    'options' => Catalog::getSortedCategories(),
                     'validate' => array('required')
                 ),
                 'name' => array(
@@ -130,7 +130,7 @@ class Catalog_Admin_CategoriesController extends Controller {
                 'category_id' => array(
                     'title' => 'Parent Category',
                     'type' => 'select',
-                    'options' => self::_getSortedCategories(),
+                    'options' => Catalog::getSortedCategories(),
                     'selected' => $category->category_id
                 ),
                 'name' => array(
@@ -176,24 +176,6 @@ class Catalog_Admin_CategoriesController extends Controller {
             Message::error('Error deleting category. Please try again.');
 
         Url::redirect('admin/catalog/categories/manage');
-    }
-
-    /**
-     * Converts categories to an array that has been formatted for forms.
-     */
-    private static function _getSortedCategories()
-    {
-        $categories = Catalog::category()->orderBy('name')->all();
-
-        MultiArray::load($categories, 'category_id');
-        $indentedCategories = MultiArray::indent();
-        $sortedCategories = array(0 => 'None');
-
-        if($indentedCategories)
-            foreach($indentedCategories as $c)
-                $sortedCategories[$c->id] = $c->indent . $c->name;
-
-        return $sortedCategories;
     }
 
 }
