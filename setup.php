@@ -29,6 +29,14 @@
             'callback' => array('admin_items', 'edit'),
             'permissions' => array('catalog.edit_items')
         ),
+        'admin/catalog/items/edit/:id/delete-photo/:id' => array(
+            'callback' => array('admin_items', 'deletePhoto'),
+            'permissions' => array('catalog.delete_item_photos')
+        ),
+        'admin/catalog/items/edit/:id/delete-file/:id' => array(
+            'callback' => array('admin_items', 'deleteFile'),
+            'permissions' => array('catalog.delete_item_files')
+        ),
         'admin/catalog/items/delete/:id' => array(
             'callback' => array('admin_items', 'delete'),
             'permissions' => array('catalog.delete_items')

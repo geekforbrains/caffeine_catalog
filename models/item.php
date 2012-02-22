@@ -4,8 +4,6 @@ class Catalog_ItemModel extends Model {
 
     public $_belongsTo = array('catalog.category');
 
-    public $_hasAndBelongsToMany = array('media.file');
-
     public $_fields = array(
         'slug' => array(
             'type' => 'varchar',
