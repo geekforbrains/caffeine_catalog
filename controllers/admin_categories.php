@@ -15,12 +15,15 @@ class Catalog_Admin_CategoriesController extends Controller {
 
         $categories = Catalog::category()->orderBy('name')->all();
 
-        if($categories)
+        MultiArray::load($categories, 'category_id');
+        $indentedCategories = MultiArray::indent();
+
+        if($indentedCategories)
         {
-            foreach($categories as $category)
+            foreach($indentedCategories as $category)
             {
                 $row = $table->addRow(); 
-                $row->addCol(Html::a()->get($category->name, 'admin/catalog/categories/edit/' . $category->id));
+                $row->addCol($category->indent . Html::a()->get($category->name, 'admin/catalog/categories/edit/' . $category->id));
                 $row->addCol(
                     Html::a()->get('Delete', 'admin/catalog/categories/delete/' . $category->id),
                     array('class' => 'right')
@@ -48,6 +51,7 @@ class Catalog_Admin_CategoriesController extends Controller {
             if(!Catalog::category()->where('name', 'LIKE', $_POST['name'])->first())
             {
                 $id = Catalog::category()->insert(array(
+                    'category_id' => $_POST['category_id'],
                     'slug' => String::slugify($_POST['name']),
                     'name' => $_POST['name']
                 ));
@@ -66,6 +70,12 @@ class Catalog_Admin_CategoriesController extends Controller {
 
         $form[] = array(
             'fields' => array(
+                'category_id' => array(
+                    'title' => 'Parent Category',
+                    'type' => 'select',
+                    'options' => self::_getSortedCategories(),
+                    'validate' => array('required')
+                ),
                 'name' => array(
                     'title' => 'Name',
                     'type' => 'text',
@@ -99,6 +109,7 @@ class Catalog_Admin_CategoriesController extends Controller {
         if($_POST && Html::form()->validate())
         {
             $status = Catalog::category()->where('id', '=', $id)->update(array(
+                'category_id' => $_POST['category_id'],
                 'slug' => String::slugify($_POST['name']),
                 'name' => $_POST['name']
             ));
@@ -116,6 +127,12 @@ class Catalog_Admin_CategoriesController extends Controller {
 
         $form[] = array(
             'fields' => array(
+                'category_id' => array(
+                    'title' => 'Parent Category',
+                    'type' => 'select',
+                    'options' => self::_getSortedCategories(),
+                    'selected' => $category->category_id
+                ),
                 'name' => array(
                     'title' => 'Name',
                     'type' => 'text',
@@ -144,12 +161,39 @@ class Catalog_Admin_CategoriesController extends Controller {
      */
     public static function delete($id)
     {
+        $parentId = Catalog::category()->find($id)->category_id;
+
         if(Catalog::category()->delete($id))
+        {
+            // Set any child categories of this category to be under this categories parent
+            Catalog::category()->where('category_id', '=', $id)->update(array(
+                'category_id' => $parentId
+            ));
+
             Message::ok('Category deleted successfully.');
+        }
         else
             Message::error('Error deleting category. Please try again.');
 
         Url::redirect('admin/catalog/categories/manage');
+    }
+
+    /**
+     * Converts categories to an array that has been formatted for forms.
+     */
+    private static function _getSortedCategories()
+    {
+        $categories = Catalog::category()->orderBy('name')->all();
+
+        MultiArray::load($categories, 'category_id');
+        $indentedCategories = MultiArray::indent();
+        $sortedCategories = array(0 => 'None');
+
+        if($indentedCategories)
+            foreach($indentedCategories as $c)
+                $sortedCategories[$c->id] = $c->indent . $c->name;
+
+        return $sortedCategories;
     }
 
 }
