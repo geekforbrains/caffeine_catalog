@@ -26,9 +26,8 @@ class Catalog extends Module {
     /**
      * Gets all categories, sorted by name.
      */
-    public static function getCategories()
-    {
-
+    public static function getCategories() {
+        return Catalog::category()->orderBy('name')->all();
     }
 
     /**
@@ -43,35 +42,84 @@ class Catalog extends Module {
             ->all();
 
         if($items)
-        {
-            foreach($items as &$i)
-            {
-                $i->photos = Catalog::photo()->where('item_id', '=', $i->id)->all();
-                $i->files = Catalog::file()->where('item_id', '=', $i->id)->all();
-            }
-        }
+            $items = self::getItemData($items);
 
         return $items;
     }
 
     public static function getItemsByCategoryId($categoryId)
     {
+        $items = Catalog::item()
+            ->select('catalog_items.*, catalog_categories.name AS category')
+            ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
+            ->where('catalog_categories.id', '=', $categoryId)
+            ->orderBy('catalog_categories.name, catalog_items.name', 'ASC')
+            ->all();
 
+        if($items)
+            $items = self::getItemData($items);
+
+        return $items;
     }
 
     public static function getItemsByCategorySlug($categorySlug)
     {
+        $items = Catalog::item()
+            ->select('catalog_items.*, catalog_categories.name AS category')
+            ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
+            ->where('catalog_categories.slug', 'LIKE', $categorySlug)
+            ->orderBy('catalog_categories.name, catalog_items.name', 'ASC')
+            ->all();
 
+        if($items)
+            $items = self::getItemData($items);
+
+        return $items;
     }
 
     public static function getItemById($id)
     {
+        $item = Catalog::item()
+            ->select('catalog_items.*, catalog_categories.name AS category')
+            ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
+            ->where('catalog_items.id', '=', $id)
+            ->first();
 
+        if($item)
+            $item = self::getItemData($item);
+
+        return $item;
     }
 
     public static function getItemBySlug($slug)
     {
+        $item = Catalog::item()
+            ->select('catalog_items.*, catalog_categories.name AS category')
+            ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
+            ->where('catalog_items.slug', 'LIKE', $slug)
+            ->first();
 
+        if($item)
+            $item = self::getItemData($item);
+
+        return $item;
+
+    }
+    
+    public static function getItemData($item)
+    {
+        if(is_array($item))
+        {
+            foreach($item as &$i)
+                $i = self::getItemData($i);
+        }
+        else
+        {
+            $item->photos = Catalog::photo()->where('item_id', '=', $item->id)->all();
+            $item->files = Catalog::file()->where('item_id', '=', $item->id)->all();
+        }
+
+        return $item;
     }
 
 }

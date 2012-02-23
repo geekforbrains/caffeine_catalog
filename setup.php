@@ -1,6 +1,38 @@
 <?php return array(
 
+    'configs' => array(
+        'catalog.statuses' => array('new', 'complete', 'cancelled'),
+        'catalog.default_status' => 'new',
+        'catalog.cart_session' => 'catalog_items',
+        'catalog.order_session' => 'catalog_order'
+    ),
+
     'routes' => array(
+        // Front
+        'catalog' => array(
+            'title' => 'Catalog',
+            'callback' => array('catalog', 'items')
+        ),
+        'catalog/item/:slug' => array(
+            'title' => 'Item',
+            'callback' => array('catalog', 'item')
+        ),
+        'catalog/cart' => array(
+            'title' => 'Cart',
+            'callback' => array('catalog', 'cart')
+        ),
+        'catalog/cart/delete/:id' => array(
+            'callback' => array('catalog', 'deleteFromCart')
+        ),
+        'catalog/checkout' => array(
+            'title' => 'Checkout',
+            'callback' => array('catalog', 'checkout')
+        ),
+        'catalog/checkout/complete' => array(
+            'title' => 'Checkout Complete',
+            'callback' => array('catalog', 'complete')
+        ),
+
         // Admin
         'admin/catalog' => array(
             'title' => 'Catalog',
