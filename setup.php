@@ -36,8 +36,29 @@
         // Admin
         'admin/catalog' => array(
             'title' => 'Catalog',
-            'redirect' => 'admin/catalog/items/manage',
+            'redirect' => 'admin/catalog/orders',
             'permissions' => array('catalog.admin_catalog')
+        ),
+
+        // Admin Orders
+        'admin/catalog/orders' => array(
+            'title' => 'Orders',
+            'redirect' => 'admin/catalog/orders/manage',
+            'permissions' => array('catalog.admin_orders')
+        ),
+        'admin/catalog/orders/manage' => array(
+            'title' => 'Manage',
+            'callback' => array('admin_orders', 'manage'),
+            'permissions' => array('catalog.manage_orders')
+        ),
+        'admin/catalog/orders/details/:id' => array(
+            'title' => 'Details',
+            'callback' => array('admin_orders', 'details'),
+            'permissions' => array('catalog.view_order_details')
+        ),
+        'admin/catalog/orders/delete/:id' => array(
+            'callback' => array('admin_orders', 'delete'),
+            'permissions' => array('catalog.delete_orders')
         ),
 
         // Admin Items
