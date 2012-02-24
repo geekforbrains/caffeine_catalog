@@ -24,6 +24,24 @@ class Catalog extends Module {
     }
 
     /**
+     * Gets order statuses from config and turns them into an array compatbile
+     * with the form builder.
+     */
+    public static function getSortedStatuses($prepend = array())
+    {
+        $config = Config::get('catalog.statuses'); 
+        $statuses = array();
+
+        if($prepend)
+            $statuses = array_merge($prepend, $statuses);
+
+        foreach($config as $status)
+            $statuses[$status] = ucfirst($status);
+
+        return $statuses;
+    }
+
+    /**
      * Gets all categories, sorted by name.
      */
     public static function getCategories() {

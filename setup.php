@@ -1,7 +1,7 @@
 <?php return array(
 
     'configs' => array(
-        'catalog.statuses' => array('new', 'complete', 'cancelled'),
+        'catalog.statuses' => array('new', 'complete', 'cancelled'), // Must be single words, lower-case
         'catalog.default_status' => 'new',
         'catalog.cart_session' => 'catalog_items',
         'catalog.order_session' => 'catalog_order'

@@ -81,7 +81,7 @@ class Catalog_Admin_CategoriesController extends Controller {
                     'type' => 'text',
                     'validate' => array('required')
                 ),
-                'submit' => array(
+                'create_category' => array(
                     'type' => 'submit',
                     'value' => 'Create Category'
                 )
@@ -139,7 +139,7 @@ class Catalog_Admin_CategoriesController extends Controller {
                     'validate' => array('required'),
                     'default_value' => $category->name
                 ),
-                'submit' => array(
+                'update_category' => array(
                     'type' => 'submit',
                     'value' => 'Update Category'
                 )

@@ -124,7 +124,7 @@ class Catalog_Admin_ItemsController extends Controller {
                     'title' => 'Description',
                     'type' => 'textarea'
                 ),
-                'submit' => array(
+                'create_item' => array(
                     'type' => 'submit',
                     'value' => 'Create Item'
                 )
@@ -151,7 +151,7 @@ class Catalog_Admin_ItemsController extends Controller {
             return ERROR_NOTFOUND;
 
         // Edit item form posted
-        if(isset($_POST['submit']))
+        if(isset($_POST['update_item']))
         {
             $status = Catalog::item()->where('id', '=', $id)->update(array(
                 'category_id' => $_POST['category_id'],
@@ -246,7 +246,7 @@ class Catalog_Admin_ItemsController extends Controller {
                     'type' => 'textarea',
                     'default_value' => $item->description
                 ),
-                'submit' => array(
+                'update_item' => array(
                     'type' => 'submit',
                     'value' => 'Update Item'
                 )
