@@ -16,9 +16,13 @@ class Catalog_CategoryModel extends Model {
             'type' => 'varchar',
             'length' => 255,
             'not null' => true
+        ),
+        'weight' => array( // Used for sorting
+            'type' => 'int',
+            'not null' => true
         )
     );
 
-    public $_indexes = array('slug');
+    public $_indexes = array('slug', 'weight');
 
 }

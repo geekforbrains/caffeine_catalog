@@ -89,6 +89,7 @@ class Catalog_Admin_ItemsController extends Controller {
                 'slug' => String::slugify($_POST['name']),
                 'name' => $_POST['name'],
                 'price' => $_POST['price'],
+                'blurb' => $_POST['blurb'],
                 'description' => $_POST['description']
             ));
 
@@ -120,9 +121,16 @@ class Catalog_Admin_ItemsController extends Controller {
                     'validate' => array('numeric'),
                     'default_value' => '0.00'
                 ),
+                'blurb' => array(
+                    'title' => 'Blurb',
+                    'type' => 'textarea'
+                ),
                 'description' => array(
                     'title' => 'Description',
-                    'type' => 'textarea'
+                    'type' => 'textarea',
+                    'attributes' => array(
+                        'class' => 'tinymce'
+                    )
                 ),
                 'create_item' => array(
                     'type' => 'submit',
@@ -158,6 +166,7 @@ class Catalog_Admin_ItemsController extends Controller {
                 'slug' => String::slugify($_POST['name']),
                 'name' => $_POST['name'],
                 'price' => $_POST['price'],
+                'blurb' => $_POST['blurb'],
                 'description' => $_POST['description']
             ));
 
@@ -241,9 +250,17 @@ class Catalog_Admin_ItemsController extends Controller {
                     'validate' => array('numeric'),
                     'default_value' => $item->price
                 ),
+                'blurb' => array(
+                    'title' => 'Blurb',
+                    'type' => 'textarea',
+                    'default_value' => $item->blurb
+                ),
                 'description' => array(
                     'title' => 'Description',
                     'type' => 'textarea',
+                    'attributes' => array(
+                        'class' => 'tinymce'
+                    ),
                     'default_value' => $item->description
                 ),
                 'update_item' => array(

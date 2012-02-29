@@ -3,6 +3,56 @@
 class Catalog_CatalogController extends Controller {
 
     /**
+     * Performs a search based on keywords, searches catalog item descriptions.
+     *
+     * TODO Make this use FULLTEXT
+     */
+    public static function search()
+    {
+        $items = null;
+
+        if(isset($_POST['keywords']))
+        {
+            $keywords = '%' . str_replace(' ', '%', $_POST['keywords']) . '%';
+            $items = Catalog::item()
+                ->distinct()
+                ->where('description', 'LIKE', $keywords)
+                ->orWhere('blurb', 'LIKE', $keywords)
+                ->orWhere('name', 'LIKE', $keywords)
+                ->all();
+            
+            if($items)
+                foreach($items as &$i)
+                    $i = Catalog::getItemData($i);
+        }
+        else
+            Url::redirect('catalog');
+
+        View::data('keywords', strip_tags($_POST['keywords']));
+        View::data('resultCount', count($items));
+        View::data('items', $items);
+    }
+
+    /**
+     * Displays all items associated with the current category, and any sub-categories
+     * where this is the parent category.
+     *
+     * @param string $slug The slug of the category to get.
+     */
+    public static function category($slug)
+    {
+        if(!$category = Catalog::category()->find($slug))
+            return ERROR_NOTFOUND;
+
+        $subCategories = Catalog::getCategoriesByParentId($category->id);
+        $items = Catalog::getItemsByCategoryId($category->id);
+
+        View::data('category', $category);
+        View::data('subCategories', $subCategories);
+        View::data('items', $items);
+    }
+
+    /**
      * Gets all items ordered by catalog name, then by item name ascending.
      *
      * Route: catalog

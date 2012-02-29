@@ -13,6 +13,14 @@
             'title' => 'Catalog',
             'callback' => array('catalog', 'items')
         ),
+        'catalog/search' => array(
+            'title' => 'Search',
+            'callback' => array('catalog', 'search')
+        ),
+        'catalog/category/:slug' => array(
+            'title' => 'Category',
+            'callback' => array('catalog', 'category')
+        ),
         'catalog/item/:slug' => array(
             'title' => 'Item',
             'callback' => array('catalog', 'item')
@@ -120,6 +128,45 @@
             'callback' => array('admin_categories', 'delete'),
             'permissions' => array('catalog.delete_categories')
         )
+    ),
+
+    'events' => array(
+        'multilanguage.modules' => function() {
+            return 'catalog';
+        },
+
+        'multilanguage.content[catalog]' => function()
+        {
+            $content = array('category' => array(), 'item' => array());
+            $categories = Catalog::category()->orderBy('name')->all();
+            $items = Catalog::item()->all();
+
+            if($categories)
+                foreach($categories as $c)
+                    $content['category'][$c->id] = $c->name;
+
+            if($items)
+                foreach($items as $i)
+                    $content['item'][$i->id] = $i->name;
+
+            return $content;
+        },
+
+        'multilanguage.content_type[catalog][category]' => function()
+        {
+            return array(
+                'name' => 'text'
+            );
+        },
+
+        'multilanguage.content_type[catalog][item]' => function()
+        {
+            return array(
+                'name' => 'text',
+                'description' => 'textarea',
+                'price' => 'text'
+            );
+        }
     )
 
 );

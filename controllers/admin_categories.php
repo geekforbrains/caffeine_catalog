@@ -9,11 +9,21 @@ class Catalog_Admin_CategoriesController extends Controller {
      */
     public static function manage()
     {
+        if(isset($_POST['update_order']))
+        {
+            foreach($_POST['weight'] as $id => $value)
+            {
+                Catalog::category()->where('id', '=', $id)->update(array(
+                    'weight' => intval($value)
+                ));
+            }
+        }
+
         $table = Html::table();
         $header = $table->addHeader();
-        $header->addCol('Category', array('colspan' => 2));
+        $header->addCol('Category', array('colspan' => 3));
 
-        $categories = Catalog::category()->orderBy('name')->all();
+        $categories = Catalog::category()->orderBy('weight')->orderBy('name')->all();
 
         MultiArray::load($categories, 'category_id');
         $indentedCategories = MultiArray::indent();
@@ -24,6 +34,8 @@ class Catalog_Admin_CategoriesController extends Controller {
             {
                 $row = $table->addRow(); 
                 $row->addCol($category->indent . Html::a()->get($category->name, 'admin/catalog/categories/edit/' . $category->id));
+                $row->addCol('<input type="text" name="weight[' . $category->id . ']" 
+                    value="' . $category->weight . '" maxlength="2" size="2" />');
                 $row->addCol(
                     Html::a()->get('Delete', 'admin/catalog/categories/delete/' . $category->id),
                     array('class' => 'right')
@@ -33,9 +45,17 @@ class Catalog_Admin_CategoriesController extends Controller {
         else
             $table->addRow()->addCol('<em>No categories.</em>', array('colspan' => 2));
 
+        $html = Html::form()->open(null, 'post', false, array('name' => 'sort', 'id' => 'sort'));
+        $html .= $table->render();
+        $html .= '<div class="buttons">';
+        $html .= '<input type="hidden" name="update_order" />';
+        $html .= '<a class="btn blue" href="javascript:document.sort.submit(); return false;">Update Order</a>';
+        $html .= '</div>';
+        $html .= Html::form()->close();
+
         return array(
             'title' => 'Manage Categories',
-            'content' => $table->render()
+            'content' => $html
         );
     }
 

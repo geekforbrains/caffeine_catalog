@@ -15,9 +15,14 @@ class Catalog_ItemModel extends Model {
             'length' => 255,
             'not null' => true
         ),
+        'blurb' => array(
+            'type' => 'text',
+            'size' => 'small',
+            'not null' => true
+        ),
         'description' => array(
-            'type' => 'varchar',
-            'length' => 255,
+            'type' => 'text',
+            'size' => 'normal',
             'not null' => true
         ),
         'price' => array(
@@ -25,5 +30,7 @@ class Catalog_ItemModel extends Model {
             'not null' => true
         )
     );
+
+    public $_fulltext = array('name', 'blurb', 'description');
 
 }

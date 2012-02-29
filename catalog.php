@@ -7,7 +7,7 @@ class Catalog extends Module {
      */
     public static function getSortedCategories($useNone = true)
     {
-        $categories = Catalog::category()->orderBy('name')->all();
+        $categories = Catalog::category()->orderBy('weight')->orderBy('name')->all();
         $sortedCategories = ($useNone) ? array(0 => 'None') : array('' => 'Choose One');
 
         if($categories)
@@ -42,10 +42,64 @@ class Catalog extends Module {
     }
 
     /**
+     * Returns the number of items currently in cart.
+     */
+    public static function getCartCount()
+    {
+        $count = 0;
+        $key = Config::get('catalog.cart_session');
+
+        if(isset($_SESSION[$key]) && $items = $_SESSION[$key])
+        {
+            foreach($items as $id => $qty)
+                $count += $qty;
+        }
+
+        return $count;
+    }
+
+    /**
      * Gets all categories, sorted by name.
      */
     public static function getCategories() {
-        return Catalog::category()->orderBy('name')->all();
+        return Catalog::category()->orderBy('weight')->orderBy('name')->all();
+    }
+
+    /**
+     * Gets a single level (no sub-categories) of categories that are related to the given
+     * parent id. Passing 0 will get top-level categories.
+     *
+     * @param int $parentId The parent id of categories to get.
+     */
+    public static function getCategoriesByParentId($parentId = 0) {
+        return Catalog::category()->where('category_id', '=', $parentId)->orderBy('weight')->orderBy('name')->all();
+    }
+
+    /**
+     * Gets the parent category for the given child catgory id.
+     *
+     * @param int $childCategoryId The child category id to get the parent category for.
+     */
+    public static function getParentCategoryByChildId($childCategoryId)
+    {
+        $child = Catalog::category()->find($childCategoryId);
+        return Catalog::category()->find($child->category_id); // Get category by parent id
+    }
+
+    /** 
+     * Returns an array of parent categories associated with the given category id. This is
+     * used for making cookie crumb type navigation. The given category id is also included as the
+     * last array element.
+     */
+    public static function getCategoryChain($categoryId, $chain = array())
+    {
+        $category = Catalog::category()->find($categoryId);
+        array_unshift($chain, $category);
+    
+        if($category->category_id > 0)
+            $chain = self::getCategoryChain($category->category_id, $chain);
+
+        return $chain;
     }
 
     /**
@@ -56,7 +110,9 @@ class Catalog extends Module {
         $items = Catalog::item()
             ->select('catalog_items.*, catalog_categories.name AS category')
             ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
-            ->orderBy('catalog_categories.name, catalog_items.name', 'ASC')
+            ->orderBy('catalog_categories.weight')
+            ->orderBy('catalog_categories.name')
+            ->orderBy('catalog_items.name')
             ->all();
 
         if($items)
@@ -71,7 +127,9 @@ class Catalog extends Module {
             ->select('catalog_items.*, catalog_categories.name AS category')
             ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
             ->where('catalog_categories.id', '=', $categoryId)
-            ->orderBy('catalog_categories.name, catalog_items.name', 'ASC')
+            ->orderBy('catalog_categories.weight')
+            ->orderBy('catalog_categories.name')
+            ->orderBy('catalog_items.name')
             ->all();
 
         if($items)
@@ -86,7 +144,9 @@ class Catalog extends Module {
             ->select('catalog_items.*, catalog_categories.name AS category')
             ->leftJoin('catalog_categories', 'catalog_categories.id', '=', 'catalog_items.category_id')
             ->where('catalog_categories.slug', 'LIKE', $categorySlug)
-            ->orderBy('catalog_categories.name, catalog_items.name', 'ASC')
+            ->orderBy('catalog_categories.weight')
+            ->orderBy('catalog_categories.name')
+            ->orderBy('catalog_items.name')
             ->all();
 
         if($items)
